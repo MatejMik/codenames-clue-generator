@@ -1,6 +1,6 @@
 import logging
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 
 # minimal frequency for a word to be considered as clue
 #  (to avoid noise - misspelled or random words - from the dataset)
