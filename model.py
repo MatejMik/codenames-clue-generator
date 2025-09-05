@@ -28,10 +28,11 @@ def count_neighbors(
 
 
 def frequency(counter: Counter, word: str):
-    return counter.get(word, 0) / counter.total()
+    total = counter.total()
+    return counter.get(word, 0) / total if total else 0
 
 
-def weight(word_frequencies):
+def clue_weight(word_frequencies):
     """
     Gives weight to words based on how frequently they appear
     next to "target" words over "avoid" words.
@@ -53,8 +54,8 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
     input_words = set(target_words + avoid_words)
     neighbor_counts = count_neighbors(training_text, input_words)
 
-    target_word_counters = [neighbor_counts.get(word) for word in target_words]
-    avoid_word_counters = [neighbor_counts.get(word) for word in avoid_words]
+    target_word_counters = [neighbor_counts[word] for word in target_words]
+    avoid_word_counters = [neighbor_counts[word] for word in avoid_words]
 
     logging.info("Computing intersection of potential clues for target words")
     target_word_neighbors = set.intersection(
@@ -75,7 +76,7 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
             }
             for word in target_word_neighbors
         ],
-        key=weight,
+        key=clue_weight,
         reverse=True,
     )
 
@@ -91,5 +92,5 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
     return [
         item["word"]
         for item in words_with_frequencies
-        if weight(item) > 1 and item["word"] not in excluded_clues
+        if clue_weight(item) > 1 and item["word"] not in excluded_clues
     ]
