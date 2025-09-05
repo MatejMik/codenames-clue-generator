@@ -4,7 +4,7 @@ import random
 from dataset import load_words
 
 MIN_FREQ = 0.001
-MOST_COMMON_WORDS_TO_IGNORE = 100
+MOST_COMMON_WORDS_TO_IGNORE = 200
 
 
 def count_neighbors(all_words, selected_words):
