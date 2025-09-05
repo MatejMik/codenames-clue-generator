@@ -1,5 +1,6 @@
 from collections import Counter
 import random
+import argparse
 
 from dataset import load_words
 
@@ -83,6 +84,15 @@ def find_clue(selected_words, anti_words):
 
 
 if __name__ == "__main__":
-    selected_words = ("informant", "agent")
-    anti_words = ("trap",)
-    find_clue(selected_words, anti_words)
+    parser = argparse.ArgumentParser(
+        description='Find a clue word that is close to "target" words but not to "avoid" words.'
+    )
+    parser.add_argument(
+        "--target", nargs="+", required=True, help="Finds a clue for these words"
+    )
+    parser.add_argument(
+        "--avoid", nargs="*", default=[], help="Ensures the clue is not for these words"
+    )
+    args = parser.parse_args()
+
+    find_clue(args.target, args.avoid)
