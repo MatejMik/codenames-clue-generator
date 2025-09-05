@@ -26,7 +26,7 @@ if __name__ == "__main__":
     clues = find_clues(args.target, args.avoid)
 
     if not clues:
-        print("Could not find a clue for given words")
+        print("Could not find a clue for the given words")
     else:
         print(
             f"Found {len(clues)} candidate"

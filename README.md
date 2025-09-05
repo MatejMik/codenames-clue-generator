@@ -17,7 +17,7 @@ red
 ```
 ```
 $ python main.py --target fox sun -- avoid army
-Could not find a clue for given words
+Could not find a clue for the given words
 ```
 ```
 $ python main.py --target road army wall

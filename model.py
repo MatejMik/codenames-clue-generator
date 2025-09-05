@@ -14,7 +14,7 @@ def count_neighbors(
     """
 
     logging.info(
-        f"Starting to count neighboring word frequencies for words: {selected_words}"
+        f"Starting to count neighboring word frequencies for words: {selected_words}."
     )
 
     neighbors = defaultdict(Counter)
@@ -22,7 +22,7 @@ def count_neighbors(
         if current in selected_words:
             neighbors[current].update((previous, next))
 
-    logging.info("Finished counting neighboring word frequencies")
+    logging.info("Finished counting neighboring word frequencies.")
 
     return neighbors
 
@@ -57,12 +57,12 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
     target_word_counters = [neighbor_counts[word] for word in target_words]
     avoid_word_counters = [neighbor_counts[word] for word in avoid_words]
 
-    logging.info("Computing intersection of potential clues for target words")
+    logging.info("Computing intersection of potential clues for target words.")
     target_word_neighbors = set.intersection(
         *(set(counter.keys()) for counter in target_word_counters)
     )
 
-    logging.info("Sorting potential clue words")
+    logging.info("Sorting potential clue words.")
     words_with_frequencies = sorted(
         [
             {
@@ -80,7 +80,7 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
         reverse=True,
     )
 
-    logging.info("Counting all words to find most common ones")
+    logging.info("Counting all words to find most common ones.")
     all_word_counts = Counter(training_text)
 
     most_common_words = {
@@ -88,7 +88,7 @@ def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
     }
     excluded_clues = most_common_words.union(input_words)
 
-    logging.info("Filtering potential clue words")
+    logging.info("Filtering potential clue words.")
     return [
         item["word"]
         for item in words_with_frequencies
