@@ -1,7 +1,15 @@
+import settings
+
 import argparse
+import logging
 
 from model import find_clues
 
+
+logging.basicConfig(
+    level=settings.LOG_LEVEL,
+    format="[%(asctime)s] %(levelname)s - %(message)s",
+)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

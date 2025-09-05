@@ -1,9 +1,7 @@
 from collections import Counter
 
 from dataset import load_words
-
-MIN_FREQ = 0.001
-MOST_COMMON_WORDS_TO_IGNORE = 200
+from settings import MIN_FREQUENCY, IGNORE_MOST_COMMON
 
 
 def count_neighbors(all_words, selected_words):
@@ -39,7 +37,7 @@ def find_clues(selected_words, anti_words):
     l = len(selected_words) + 1
 
     def weight(frequencies):
-        return min(frequencies[1:l]) / max(frequencies[l:] + (MIN_FREQ,))
+        return min(frequencies[1:l]) / max(frequencies[l:] + (MIN_FREQUENCY,))
 
     final_choices = sorted(
         [
@@ -63,9 +61,7 @@ def find_clues(selected_words, anti_words):
     #     sep="\n",
     # )
 
-    excluded_hints = {
-        key for key, _ in word_counter.most_common(MOST_COMMON_WORDS_TO_IGNORE)
-    }
+    excluded_hints = {key for key, _ in word_counter.most_common(IGNORE_MOST_COMMON)}
     correct_choices = [
         choice[0] for choice in correct_choices if choice[0] not in excluded_hints
     ]
