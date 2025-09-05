@@ -10,7 +10,7 @@ MOST_COMMON_WORDS_TO_IGNORE = 200
 
 def count_neighbors(all_words, selected_words):
     neighbors = {}
-    print("start counting")
+    # print("start counting")
     for previous, current, next in zip(all_words[:-2], all_words[1:-1], all_words[:-2]):
         if current in selected_words:
             if current in neighbors:
@@ -18,7 +18,7 @@ def count_neighbors(all_words, selected_words):
             else:
                 neighbors[current] = Counter((previous, next))
 
-    print("return neighbour counts")
+    # print("return neighbour counts")
     return neighbors
 
 
@@ -57,14 +57,13 @@ def find_clue(selected_words, anti_words):
 
     correct_choices = [choice for choice in final_choices if weight(choice) > 1]
 
-    print("SORTED:")
-    print(
-        *(
-            " ".join(f"{x:.5f}" for x in numbers) + " " + word
-            for (word, *numbers) in correct_choices
-        ),
-        sep="\n",
-    )
+    # print(
+    #     *(
+    #         " ".join(f"{x:.5f}" for x in numbers) + " " + word
+    #         for (word, *numbers) in correct_choices
+    #     ),
+    #     sep="\n",
+    # )
 
     excluded_hints = {
         key for key, _ in word_counter.most_common(MOST_COMMON_WORDS_TO_IGNORE)
@@ -72,13 +71,16 @@ def find_clue(selected_words, anti_words):
     correct_choices = [
         choice[0] for choice in correct_choices if choice[0] not in excluded_hints
     ]
+
+    # TODO move printing below out of this function
     if not correct_choices:
-        print("FAIL")
+        print("Could not find a clue for given words")
     else:
-        print("\n", "-------------------------", "\n")
-        print(correct_choices[0], len(selected_words))
-        print(*sorted(selected_words + anti_words, key=lambda _: random.random()))
-        print("\n", "-------------------------", "\n")
+        print(
+            f"Found {len(correct_choices)} potential clue"
+            + ("s" if len(correct_choices) > 1 else "")
+        )
+        print(*correct_choices, sep="\n")
 
     return
 
