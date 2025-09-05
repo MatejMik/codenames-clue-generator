@@ -1,29 +1,29 @@
 import logging
-from collections import Counter
+from collections import Counter, defaultdict
+from typing import Dict, List, Set
 
 from dataset import load_words
 from settings import MIN_FREQUENCY, IGNORE_MOST_COMMON
 
 
-def count_neighbors(all_words, selected_words):
+def count_neighbors(
+    all_words: List[str], selected_words: Set[str]
+) -> Dict[str, Counter]:
     logging.info(
         f"Starting to count neighboring word frequencies for words: {selected_words}"
     )
 
-    neighbors = {}
+    neighbors = defaultdict(Counter)
     for previous, current, next in zip(all_words[:-2], all_words[1:-1], all_words[:-2]):
         if current in selected_words:
-            if current in neighbors:
-                neighbors[current].update((previous, next))
-            else:
-                neighbors[current] = Counter((previous, next))
+            neighbors[current].update((previous, next))
 
     logging.info("Finished counting neighboring word frequencies")
 
     return neighbors
 
 
-def find_clues(selected_words, anti_words):
+def find_clues(selected_words: List[str], anti_words: List[str]) -> List[str]:
     words = load_words()
     neighbors = count_neighbors(words, set(selected_words + anti_words))
 
@@ -58,9 +58,11 @@ def find_clues(selected_words, anti_words):
 
     correct_choices = [choice for choice in final_choices if weight(choice) > 1]
 
-    excluded_hints = {
-        key for key, _ in word_counter.most_common(IGNORE_MOST_COMMON)
-    }  # TODO exclude selected words
+    most_common_words = {
+        item[0] for item in word_counter.most_common(IGNORE_MOST_COMMON)
+    }
+    excluded_hints = most_common_words + selected_words
+
     correct_choices = [
         choice[0] for choice in correct_choices if choice[0] not in excluded_hints
     ]
