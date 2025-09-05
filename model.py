@@ -9,6 +9,10 @@ from settings import MIN_FREQUENCY, IGNORE_MOST_COMMON
 def count_neighbors(
     all_words: List[str], selected_words: Set[str]
 ) -> Dict[str, Counter]:
+    """
+    For each of the selected words counts all words that appear next to it.
+    """
+
     logging.info(
         f"Starting to count neighboring word frequencies for words: {selected_words}"
     )
@@ -23,48 +27,69 @@ def count_neighbors(
     return neighbors
 
 
-def find_clues(selected_words: List[str], anti_words: List[str]) -> List[str]:
-    words = load_words()
-    neighbors = count_neighbors(words, set(selected_words + anti_words))
+def frequency(counter: Counter, word: str):
+    return counter.get(word, 0) / counter.total()
 
-    word_counter = Counter(words)
-    all_words = set(words)
-    all_counters = []
 
-    for word in selected_words:
-        selected_neighbors = neighbors.get(word)
-        all_counters.append(selected_neighbors)
-        all_words = all_words.intersection(set(selected_neighbors.keys()))
+def weight(word_frequencies):
+    """
+    Gives weight to words based on how frequently they appear
+    next to "target" words over "avoid" words.
+    """
 
-    for word in anti_words:
-        all_counters.append(neighbors.get(word))
+    return min(word_frequencies["target_word_frequencies"]) / max(
+        word_frequencies["avoid_word_frequencies"] + [MIN_FREQUENCY]
+    )
 
-    l = len(selected_words) + 1
 
-    def weight(frequencies):
-        return min(frequencies[1:l]) / max(frequencies[l:] + (MIN_FREQUENCY,))
+def find_clues(target_words: List[str], avoid_words: List[str]) -> List[str]:
+    """
+    Returns all words that are candidates for a clue in order of most confidence.
+    """
+    target_words = [word.lower() for word in target_words]
+    avoid_words = [word.lower() for word in avoid_words]
 
-    final_choices = sorted(
+    training_text = load_words()
+    input_words = set(target_words + avoid_words)
+    neighbor_counts = count_neighbors(training_text, input_words)
+
+    target_word_counters = [neighbor_counts.get(word) for word in target_words]
+    avoid_word_counters = [neighbor_counts.get(word) for word in avoid_words]
+
+    logging.info("Computing intersection of potential clues for target words")
+    target_word_neighbors = set.intersection(
+        *(set(counter.keys()) for counter in target_word_counters)
+    )
+
+    logging.info("Sorting potential clue words")
+    words_with_frequencies = sorted(
         [
-            (
-                w,
-                *(counts.get(w, 0) / counts.total() for counts in all_counters),
-            )
-            for w in all_words
+            {
+                "word": word,
+                "target_word_frequencies": [
+                    frequency(counter, word) for counter in target_word_counters
+                ],
+                "avoid_word_frequencies": [
+                    frequency(counter, word) for counter in avoid_word_counters
+                ],
+            }
+            for word in target_word_neighbors
         ],
         key=weight,
         reverse=True,
     )
 
-    correct_choices = [choice for choice in final_choices if weight(choice) > 1]
+    logging.info("Counting all words to find most common ones")
+    all_word_counts = Counter(training_text)
 
     most_common_words = {
-        item[0] for item in word_counter.most_common(IGNORE_MOST_COMMON)
+        word for word, _ in all_word_counts.most_common(IGNORE_MOST_COMMON)
     }
-    excluded_hints = most_common_words + selected_words
+    excluded_clues = most_common_words.union(input_words)
 
-    correct_choices = [
-        choice[0] for choice in correct_choices if choice[0] not in excluded_hints
+    logging.info("Filtering potential clue words")
+    return [
+        item["word"]
+        for item in words_with_frequencies
+        if weight(item) > 1 and item["word"] not in excluded_clues
     ]
-
-    return correct_choices

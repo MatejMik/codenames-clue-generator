@@ -9,8 +9,9 @@ from settings import DATASET_FILE_PATH, DATASET_NAME, TMP_FOLDER
 
 def clean_text(text: str) -> str:
     """
-    remove characters that are not alphanumeric or white spaces
+    Remove characters that are not alphanumeric or white spaces.
     """
+
     return re.sub(r"[^\w\s]", "", text)
 
 
