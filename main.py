@@ -1,5 +1,4 @@
 from collections import Counter
-import random
 import argparse
 
 from dataset import load_words
@@ -22,7 +21,7 @@ def count_neighbors(all_words, selected_words):
     return neighbors
 
 
-def find_clue(selected_words, anti_words):
+def find_clues(selected_words, anti_words):
     words = load_words()
     neighbors = count_neighbors(words, set(selected_words + anti_words))
 
@@ -72,17 +71,7 @@ def find_clue(selected_words, anti_words):
         choice[0] for choice in correct_choices if choice[0] not in excluded_hints
     ]
 
-    # TODO move printing below out of this function
-    if not correct_choices:
-        print("Could not find a clue for given words")
-    else:
-        print(
-            f"Found {len(correct_choices)} potential clue"
-            + ("s" if len(correct_choices) > 1 else "")
-        )
-        print(*correct_choices, sep="\n")
-
-    return
+    return correct_choices
 
 
 if __name__ == "__main__":
@@ -97,4 +86,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    find_clue(args.target, args.avoid)
+    clues = find_clues(args.target, args.avoid)
+
+    if not clues:
+        print("Could not find a clue for given words")
+    else:
+        print(
+            f"Found {len(clues)} candidate"
+            + ("s" if len(clues) > 1 else "")
+            + " for a clue:"
+        )
+        print(*clues, sep="\n")
