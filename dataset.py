@@ -1,22 +1,15 @@
 import logging
 import os
 import re
+
 from datasets import load_dataset
-
-DATASET_NAME = "wikitext-103-v1"
-
-# a much smaller dataset that gives worse results, but runs faster
-# DATASET_NAME = "wikitext-2-v1"
-
-TMP_FOLDER = "tmp"
-
-FILE_PATH = os.path.join(TMP_FOLDER, f"{DATASET_NAME}.txt")
+from settings import DATASET_FILE_PATH, DATASET_NAME, TMP_FOLDER
 
 
 def load_words():
-    if os.path.exists(FILE_PATH):
+    if os.path.exists(DATASET_FILE_PATH):
         logging.info("Loading the dataset from a local file.")
-        with open(FILE_PATH) as f:
+        with open(DATASET_FILE_PATH) as f:
             words = f.read().split()
     else:
         logging.info(
@@ -31,7 +24,7 @@ def load_words():
 
         logging.info("Finished clean up. Saving the dataset to a local file.")
         os.makedirs(TMP_FOLDER, exist_ok=True)
-        with open(FILE_PATH, mode="w") as f:
+        with open(DATASET_FILE_PATH, mode="w") as f:
             f.write(" ".join(words))
 
     return words
